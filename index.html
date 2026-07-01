@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Laco de Leite | Sistema Hospitalar</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="login-screen" id="loginScreen">
+      <section class="login-hero" aria-label="Entrada do sistema">
+        <div class="login-overlay"></div>
+        <div class="login-copy">
+          <img class="hero-logo" src="assets/logo-primary.svg" alt="Laco de Leite" />
+          <h1>Torre de controle para banco de leite hospitalar</h1>
+          <p>Priorize doacoes, receptoras, validade, coleta e entrega em um fluxo seguro para a equipe medica.</p>
+        </div>
+      </section>
+
+      <section class="login-panel" aria-label="Login medico">
+        <img class="login-logo" src="assets/logo-alt.svg" alt="Laco de Leite" />
+        <p class="eyebrow">Acesso restrito</p>
+        <h2>Entrar como profissional do hospital</h2>
+        <form id="loginForm" class="login-form">
+          <label>
+            CRM ou matricula
+            <input type="text" id="userId" value="CRM-24581" autocomplete="username" required />
+          </label>
+          <label>
+            Senha
+            <input type="password" id="password" value="hospital123" autocomplete="current-password" required />
+          </label>
+          <label>
+            Unidade
+            <select id="unit">
+              <option>UTI Neonatal</option>
+              <option>Banco de Leite</option>
+              <option>Pediatria</option>
+              <option>Gestao Hospitalar</option>
+            </select>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" checked />
+            Verificacao em duas etapas validada
+          </label>
+          <button class="primary-action" type="submit">Entrar no painel</button>
+        </form>
+        <small class="security-note">Ambiente simulado com trilha de auditoria, LGPD e perfil clinico.</small>
+      </section>
+    </main>
+
+    <div class="app-shell hidden" id="appShell">
+      <aside class="sidebar" aria-label="Navegacao principal">
+        <div class="brand">
+          <img src="assets/logo-primary.svg" alt="Laco de Leite" />
+        </div>
+
+        <nav class="nav-list">
+          <button class="nav-item active" type="button" data-screen="screen-dashboard">Painel</button>
+          <button class="nav-item" type="button" data-screen="screen-alerts">Alertas</button>
+          <button class="nav-item" type="button" data-screen="screen-donors">Doadoras</button>
+          <button class="nav-item" type="button" data-screen="screen-recipients">Receptoras</button>
+          <button class="nav-item" type="button" data-screen="screen-stock">Estoque</button>
+          <button class="nav-item" type="button" data-screen="screen-routes">Rotas</button>
+          <button class="nav-item" type="button" data-screen="screen-audit">Auditoria</button>
+          <button class="nav-item" type="button" data-screen="screen-settings">Seguranca</button>
+        </nav>
+
+        <div class="shift-card">
+          <span>Logado como</span>
+          <strong id="loggedUser">Dra. Marina Lopes</strong>
+          <small id="loggedUnit">UTI Neonatal</small>
+          <button class="text-action" type="button" id="logoutBtn">Sair</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Laco de Leite</p>
+            <h1 id="pageTitle">Painel hospitalar</h1>
+          </div>
+          <div class="top-actions">
+            <label class="search">
+              <span>Busca global</span>
+              <input id="searchInput" type="search" placeholder="Buscar doadora, receptora, lote ou rota" />
+            </label>
+            <button class="primary-action" type="button" id="optimizeBtn">Otimizar prioridades</button>
+          </div>
+        </header>
+
+        <section class="screen active" id="screen-dashboard" data-title="Painel hospitalar">
+          <div class="kpi-grid">
+            <article class="kpi"><span>Leite disponivel</span><strong id="milkAvailable">0 L</strong><small>pasteurizado e liberado</small></article>
+            <article class="kpi danger"><span>Proximo de vencer</span><strong id="expiringMilk">0 L</strong><small>ate 48 horas</small></article>
+            <article class="kpi warn"><span>Leite parado</span><strong id="stalledMilk">0 L</strong><small>sem movimentacao recente</small></article>
+            <article class="kpi good"><span>Atendimentos sugeridos</span><strong id="suggestedMatches">0</strong><small>com rota recomendada</small></article>
+          </div>
+
+          <div class="dashboard-grid">
+            <article class="panel">
+              <div class="panel-head">
+                <div><p class="eyebrow">Hoje</p><h2>Fila critica</h2></div>
+                <span class="status-pill danger">3 urgentes</span>
+              </div>
+              <div class="timeline" id="criticalTimeline"></div>
+            </article>
+            <article class="panel">
+              <div class="panel-head">
+                <div><p class="eyebrow">Unidades</p><h2>Demanda neonatal</h2></div>
+                <span class="status-pill">4 setores</span>
+              </div>
+              <div class="unit-grid" id="unitGrid"></div>
+            </article>
+            <article class="panel wide">
+              <div class="panel-head">
+                <div><p class="eyebrow">Conexao sugerida</p><h2>Melhor decisao agora</h2></div>
+                <button class="ghost-action" type="button" id="assignBestBtn">Acionar rota</button>
+              </div>
+              <div class="decision-strip">
+                <div><strong>Ana Paula</strong><small>Doadora | Bairro Norte | 3,4 L</small></div>
+                <div><strong>Lote L-2048</strong><small>Vence em 18h | liberado</small></div>
+                <div><strong>RN Helena</strong><small>UTI Neo 2 | prioridade critica</small></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-alerts" data-title="Alertas clinicos e operacionais">
+          <article class="panel full">
+            <div class="panel-head">
+              <div><p class="eyebrow">Alertas</p><h2>Lotes que exigem decisao</h2></div>
+              <div class="segmented">
+                <button class="segment active" type="button" data-filter="all">Todos</button>
+                <button class="segment" type="button" data-filter="expiring">Vencendo</button>
+                <button class="segment" type="button" data-filter="stalled">Parados</button>
+              </div>
+            </div>
+            <div class="alert-list" id="alertList"></div>
+          </article>
+        </section>
+
+        <section class="screen" id="screen-donors" data-title="Cadastro e acompanhamento de doadoras">
+          <div class="split-grid">
+            <article class="panel">
+              <div class="panel-head">
+                <div><p class="eyebrow">Doadoras</p><h2>Possiveis coletas</h2></div>
+                <button class="ghost-action" type="button" id="newDonorBtn">Nova doadora</button>
+              </div>
+              <div id="donorList" class="person-list"></div>
+            </article>
+            <article class="panel">
+              <div class="panel-head">
+                <div><p class="eyebrow">Triagem</p><h2>Checklist hospitalar</h2></div>
+                <span class="status-pill accent">LGPD</span>
+              </div>
+              <div class="checklist">
+                <label><input type="checkbox" checked /> Consentimento assinado</label>
+                <label><input type="checkbox" checked /> Questionario clinico atualizado</label>
+                <label><input type="checkbox" /> Exames pendentes revisados</label>
+                <label><input type="checkbox" checked /> Orientacao de armazenamento enviada</label>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-recipients" data-title="Receptoras e prioridade clinica">
+          <article class="panel full">
+            <div class="panel-head">
+              <div><p class="eyebrow">Pacientes</p><h2>Receptoras prioritarias</h2></div>
+              <span class="status-pill danger">UTI neonatal ativa</span>
+            </div>
+            <div id="recipientList" class="patient-table"></div>
+          </article>
+        </section>
+
+        <section class="screen" id="screen-stock" data-title="Estoque, validade e rastreabilidade">
+          <div class="split-grid">
+            <article class="panel">
+              <div class="panel-head">
+                <div><p class="eyebrow">Estoque</p><h2>Validade por lote</h2></div>
+                <span class="status-pill">8 lotes ativos</span>
+              </div>
+              <div class="stock-chart" id="stockChart"></div>
+            </article>
+            <article class="panel">
+              <div class="panel-head">
+                <div><p class="eyebrow">Rastreio</p><h2>Cadeia fria</h2></div>
+                <span class="status-pill good">Estavel</span>
+              </div>
+              <div class="sensor-list" id="sensorList"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-routes" data-title="Rotas de coleta e entrega">
+          <div class="split-grid">
+            <article class="panel">
+              <div class="panel-head">
+                <div><p class="eyebrow">Rota</p><h2>Coleta e entrega rapida</h2></div>
+                <span class="status-pill accent" id="routeEta">32 min</span>
+              </div>
+              <div class="route-map" aria-label="Mapa operacional simplificado">
+                <span class="map-node donor-node">D</span>
+                <span class="map-node lab-node">L</span>
+                <span class="map-node hospital-node">H</span>
+                <span class="route-line route-one"></span>
+                <span class="route-line route-two"></span>
+              </div>
+            </article>
+            <article class="panel">
+              <div class="panel-head">
+                <div><p class="eyebrow">Etapas</p><h2>Rota recomendada</h2></div>
+              </div>
+              <div class="route-steps" id="routeSteps"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-audit" data-title="Auditoria e acoes do sistema">
+          <article class="panel full">
+            <div class="panel-head">
+              <div><p class="eyebrow">Auditoria</p><h2>Fila de acoes e registros</h2></div>
+              <span class="status-pill" id="actionCount">0 pendentes</span>
+            </div>
+            <div class="action-feed" id="actionFeed"></div>
+          </article>
+        </section>
+
+        <section class="screen" id="screen-settings" data-title="Seguranca e parametros hospitalares">
+          <div class="settings-grid">
+            <article class="panel">
+              <div class="panel-head">
+                <div><p class="eyebrow">Acesso</p><h2>Perfis autorizados</h2></div>
+              </div>
+              <div class="role-list">
+                <label><input type="checkbox" checked /> Medico neonatologista</label>
+                <label><input type="checkbox" checked /> Enfermeira do banco de leite</label>
+                <label><input type="checkbox" checked /> Gestor hospitalar</label>
+                <label><input type="checkbox" /> Acesso externo de coleta</label>
+              </div>
+            </article>
+            <article class="panel">
+              <div class="panel-head">
+                <div><p class="eyebrow">Parametros</p><h2>Regras de alerta</h2></div>
+              </div>
+              <div class="slider-list">
+                <label>Validade critica <input type="range" min="12" max="72" value="48" /></label>
+                <label>Tempo parado <input type="range" min="12" max="96" value="40" /></label>
+                <label>Prioridade UTI <input type="range" min="1" max="10" value="9" /></label>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
